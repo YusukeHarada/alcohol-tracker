@@ -18,7 +18,7 @@ type Props = {
 
 export function DrinkForm({ onSubmit }: Props) {
   const initial = DRINK_CATEGORIES[0]
-  const [category,       setCategory]       = useState(initial.value)
+  const [category, setCategory] = useState<string>(initial.value)
   const [volumeMl,       setVolumeMl]       = useState(String(initial.defaultMl))
   const [alcoholPercent, setAlcoholPercent] = useState(String(initial.defaultPercent))
   const [memo,           setMemo]           = useState('')
