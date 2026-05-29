@@ -8,7 +8,7 @@ export type DrinkCategory =
 
 export type DrinkRecord = {
   id: string
-  userId: string
+  userId: string | null
   date: string
   category: string
   volumeMl: number
@@ -21,7 +21,7 @@ export type DrinkRecord = {
 
 export type DailySummary = {
   id: string
-  userId: string
+  userId: string | null
   date: string
   totalAlcoholG: number
   isRestDay: boolean
@@ -35,14 +35,14 @@ export type DrinkTemplateItem = {
 
 export type DrinkTemplate = {
   id: string
-  userId: string
+  userId: string | null
   name: string
   items: DrinkTemplateItem[]
 }
 
 export type UserGoal = {
   id: string
-  userId: string
+  userId: string | null
   dailyLimitG: number
   weeklyRestDays: number
   weeklyLimitG: number

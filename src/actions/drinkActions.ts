@@ -3,16 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { calcPureAlcohol, calcDailyTotal } from '@/domain/alcohol'
 import { SupabaseDrinkRepository, SupabaseDailySummaryRepository } from '@/repository/supabaseDrinkRepository'
-import { createServerClient } from '@/lib/supabase/server'
 
 const summaryRepo = new SupabaseDailySummaryRepository()
-
-async function getCurrentUserId(): Promise<string | null> {
-  const supabase = await createServerClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  console.log('auth.getUser result:', JSON.stringify({ user: user?.id, error }))
-  return user?.id ?? null
-}
 
 export async function addDrinkRecord(input: {
   date: string
@@ -22,12 +14,10 @@ export async function addDrinkRecord(input: {
   pureAlcoholG: number
   memo: string
 }) {
-  const userId    = await getCurrentUserId()
-  console.log('userId:', userId)
   const drinkRepo = new SupabaseDrinkRepository()
 
   await drinkRepo.add({
-    userId: userId ?? 'anonymous',
+    userId:         null,
     date:           input.date,
     category:       input.category,
     volumeMl:       input.volumeMl,
