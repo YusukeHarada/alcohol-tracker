@@ -3,6 +3,7 @@ export const WEEKLY_LIMIT_G = 280
 export const CONSECUTIVE_ALERT_DAYS = 3
 
 export const DRINK_CATEGORIES = [
+  { value: 't-hi',  label: '宝ハイボール', defaultMl: 500, defaultPercent: 7   },
   { value: 'beer',    label: 'ビール',     defaultMl: 500, defaultPercent: 5   },
   { value: 'sake',    label: '日本酒',     defaultMl: 180, defaultPercent: 15  },
   { value: 'wine',    label: 'ワイン',     defaultMl: 120, defaultPercent: 12  },

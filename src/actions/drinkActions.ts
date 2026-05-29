@@ -7,11 +7,11 @@ import { createServerClient } from '@/lib/supabase/server'
 
 const summaryRepo = new SupabaseDailySummaryRepository()
 
-async function getCurrentUserId(): Promise<string> {
+async function getCurrentUserId(): Promise<string | null> {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('未認証です')
-  return user.id
+  const { data: { user }, error } = await supabase.auth.getUser()
+  console.log('auth.getUser result:', JSON.stringify({ user: user?.id, error }))
+  return user?.id ?? null
 }
 
 export async function addDrinkRecord(input: {
@@ -23,10 +23,11 @@ export async function addDrinkRecord(input: {
   memo: string
 }) {
   const userId    = await getCurrentUserId()
+  console.log('userId:', userId)
   const drinkRepo = new SupabaseDrinkRepository()
 
   await drinkRepo.add({
-    userId,
+    userId: userId ?? 'anonymous',
     date:           input.date,
     category:       input.category,
     volumeMl:       input.volumeMl,
