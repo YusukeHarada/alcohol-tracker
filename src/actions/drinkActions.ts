@@ -3,9 +3,16 @@
 import { revalidatePath } from 'next/cache'
 import { calcPureAlcohol, calcDailyTotal } from '@/domain/alcohol'
 import { SupabaseDrinkRepository, SupabaseDailySummaryRepository } from '@/repository/supabaseDrinkRepository'
+import { createServerClient } from '@/lib/supabase/server'
 
-const drinkRepo   = new SupabaseDrinkRepository()
 const summaryRepo = new SupabaseDailySummaryRepository()
+
+async function getCurrentUserId(): Promise<string> {
+  const supabase = await createServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('未認証です')
+  return user.id
+}
 
 export async function addDrinkRecord(input: {
   date: string
@@ -15,7 +22,11 @@ export async function addDrinkRecord(input: {
   pureAlcoholG: number
   memo: string
 }) {
+  const userId    = await getCurrentUserId()
+  const drinkRepo = new SupabaseDrinkRepository()
+
   await drinkRepo.add({
+    userId,
     date:           input.date,
     category:       input.category,
     volumeMl:       input.volumeMl,
@@ -25,7 +36,7 @@ export async function addDrinkRecord(input: {
   })
 
   const records = await drinkRepo.listByDate(input.date)
-  const total = calcDailyTotal(records)
+  const total   = calcDailyTotal(records)
   await summaryRepo.upsert(input.date, total)
 
   revalidatePath('/')
@@ -37,6 +48,7 @@ export async function updateDrinkRecord(
   patch: { volumeMl?: number; alcoholPercent?: number; memo?: string },
   date: string
 ) {
+  const drinkRepo    = new SupabaseDrinkRepository()
   const pureAlcoholG =
     patch.volumeMl !== undefined && patch.alcoholPercent !== undefined
       ? calcPureAlcohol(patch.volumeMl, patch.alcoholPercent)
@@ -48,7 +60,7 @@ export async function updateDrinkRecord(
   })
 
   const records = await drinkRepo.listByDate(date)
-  const total = calcDailyTotal(records)
+  const total   = calcDailyTotal(records)
   await summaryRepo.upsert(date, total)
 
   revalidatePath('/')
@@ -56,10 +68,11 @@ export async function updateDrinkRecord(
 }
 
 export async function deleteDrinkRecord(id: string, date: string) {
+  const drinkRepo = new SupabaseDrinkRepository()
   await drinkRepo.delete(id)
 
   const records = await drinkRepo.listByDate(date)
-  const total = calcDailyTotal(records)
+  const total   = calcDailyTotal(records)
   await summaryRepo.upsert(date, total)
 
   revalidatePath('/')

@@ -1,6 +1,6 @@
 import type { DrinkRecord, DailySummary } from '@/lib/types'
 
-export type NewDrinkInput = Omit<DrinkRecord, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+export type NewDrinkInput = Omit<DrinkRecord, 'id' | 'createdAt' | 'updatedAt'>
 
 export interface IDrinkRepository {
   add(record: NewDrinkInput): Promise<DrinkRecord>

@@ -34,6 +34,7 @@ class InMemoryDrinkRepository implements IDrinkRepository {
 }
 
 const base: NewDrinkInput = {
+  userId: 'test-user',
   date: '2025-05-25',
   category: 'beer',
   volumeMl: 500,
