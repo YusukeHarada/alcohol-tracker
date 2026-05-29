@@ -8,6 +8,7 @@ export class SupabaseDrinkRepository implements IDrinkRepository {
     const { data, error } = await supabase
       .from('drink_records')
       .insert({
+        user_id: input.userId,
         date: input.date,
         category: input.category,
         volume_ml: input.volumeMl,
