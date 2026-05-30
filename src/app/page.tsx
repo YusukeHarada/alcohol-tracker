@@ -1,4 +1,4 @@
-import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns'
+import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { SupabaseDrinkRepository } from '@/repository/supabaseDrinkRepository'
 import { SupabaseGoalRepository } from '@/repository/supabaseGoalRepository'
@@ -10,27 +10,42 @@ import {
   hasRestDayThisWeek,
   getConsecutiveDrinkingDays,
 } from '@/domain/weeklyStats'
+import { formatDisplayDate } from '@/domain/dateNav'
 import { DailySummaryCard } from '@/components/DailySummaryCard/DailySummaryCard'
 import { WarningBanner } from '@/components/WarningBanner/WarningBanner'
 import { QuickAddButton } from '@/components/QuickAddButton/QuickAddButton'
 import { GoalCard } from '@/components/GoalCard/GoalCard'
+import { DateNav } from '@/components/DateNav/DateNav'
+import {
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+} from 'date-fns'
 
-export default async function HomePage() {
-  const today = format(new Date(), 'yyyy-MM-dd')
+type Props = {
+  searchParams: Promise<{ date?: string }>
+}
+
+export default async function HomePage({ searchParams }: Props) {
+  const params      = await searchParams
+  const today       = format(new Date(), 'yyyy-MM-dd')
+  const selectedDate = params.date ?? today
+
   const drinkRepo    = new SupabaseDrinkRepository()
   const goalRepo     = new SupabaseGoalRepository()
   const templateRepo = new SupabaseTemplateRepository()
 
-  const [todayRecords, goal, templates] = await Promise.all([
-    drinkRepo.listByDate(today),
+  const [selectedRecords, goal, templates] = await Promise.all([
+    drinkRepo.listByDate(selectedDate),
     goalRepo.get(),
     templateRepo.list(),
   ])
 
-  const dailyTotal = calcDailyTotal(todayRecords)
+  const dailyTotal = calcDailyTotal(selectedRecords)
 
-  const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 })
-  const weekEnd   = endOfWeek(new Date(),   { weekStartsOn: 1 })
+  // 今週の集計（表示日が含まれる週）
+  const weekStart = startOfWeek(new Date(selectedDate + 'T00:00:00'), { weekStartsOn: 1 })
+  const weekEnd   = endOfWeek(new Date(selectedDate + 'T00:00:00'),   { weekStartsOn: 1 })
   const weekDays  = eachDayOfInterval({ start: weekStart, end: weekEnd })
 
   const weeklyRecords = await Promise.all(
@@ -41,16 +56,15 @@ export default async function HomePage() {
     })
   )
 
-  const weeklyTotal    = calcWeeklyTotal(weeklyRecords)
-  const restDays       = countRestDays(weeklyRecords)
+  const weeklyTotal     = calcWeeklyTotal(weeklyRecords)
+  const restDays        = countRestDays(weeklyRecords)
   const consecutiveDays = getConsecutiveDrinkingDays(weeklyRecords)
-  const hasRestDay     = hasRestDayThisWeek(weeklyRecords)
+  const hasRestDay      = hasRestDayThisWeek(weeklyRecords)
 
   return (
     <main className="max-w-md mx-auto px-4 py-6 space-y-4">
-      <h1 className="text-xl font-semibold">
-        {format(new Date(), 'M月d日（E）', { locale: ja })}
-      </h1>
+
+      <DateNav date={selectedDate} today={today} />
 
       <WarningBanner
         dailyTotalG={dailyTotal}
@@ -63,9 +77,9 @@ export default async function HomePage() {
         <GoalCard
           goal={goal}
           actual={{
-            dailyTotalG:   dailyTotal,
+            dailyTotalG:    dailyTotal,
             weeklyRestDays: restDays,
-            weeklyTotalG:  weeklyTotal,
+            weeklyTotalG:   weeklyTotal,
           }}
         />
       )}
@@ -74,11 +88,11 @@ export default async function HomePage() {
         dailyTotalG={dailyTotal}
         weeklyTotalG={weeklyTotal}
         restDaysThisWeek={restDays}
-        isRestDay={isRestDay(todayRecords)}
-        records={todayRecords}
+        isRestDay={isRestDay(selectedRecords)}
+        records={selectedRecords}
       />
 
-      <QuickAddButton date={today} templates={templates} />
+      <QuickAddButton date={selectedDate} templates={templates} />
     </main>
   )
 }
