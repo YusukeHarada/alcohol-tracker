@@ -11,5 +11,6 @@ export interface IDrinkRepository {
 
 export interface IDailySummaryRepository {
   listByMonth(year: number, month: number): Promise<DailySummary[]>
+  listByRange(from: string, to: string): Promise<DailySummary[]>
   upsert(date: string, totalAlcoholG: number): Promise<DailySummary>
 }

@@ -8,13 +8,13 @@ export class SupabaseDrinkRepository implements IDrinkRepository {
     const { data, error } = await supabase
       .from('drink_records')
       .insert({
-        user_id: input.userId,
-        date: input.date,
-        category: input.category,
-        volume_ml: input.volumeMl,
+        user_id:         input.userId,
+        date:            input.date,
+        category:        input.category,
+        volume_ml:       input.volumeMl,
         alcohol_percent: input.alcoholPercent,
-        pure_alcohol_g: input.pureAlcoholG,
-        memo: input.memo,
+        pure_alcohol_g:  input.pureAlcoholG,
+        memo:            input.memo,
       })
       .select()
       .single()
@@ -63,11 +63,17 @@ export class SupabaseDailySummaryRepository implements IDailySummaryRepository {
     const supabase = await createServerClient()
     const from = `${year}-${String(month).padStart(2, '0')}-01`
     const to   = `${year}-${String(month).padStart(2, '0')}-31`
+    return this.listByRange(from, to)
+  }
+
+  async listByRange(from: string, to: string): Promise<DailySummary[]> {
+    const supabase = await createServerClient()
     const { data, error } = await supabase
       .from('daily_summaries')
       .select('*')
       .gte('date', from)
       .lte('date', to)
+      .order('date')
     if (error) throw error
     return (data ?? []).map(toSummary)
   }
@@ -76,7 +82,7 @@ export class SupabaseDailySummaryRepository implements IDailySummaryRepository {
     const supabase = await createServerClient()
     const { data, error } = await supabase
       .from('daily_summaries')
-      .upsert({ date, total_alcohol_g: totalAlcoholG })
+      .upsert({ date, total_alcohol_g: totalAlcoholG }, { onConflict: 'date' })
       .select()
       .single()
     if (error) throw error
