@@ -37,15 +37,15 @@ export function BarChart({ data, height = CHART_H }: Props) {
               y={y}
               width={BAR_W}
               height={barH}
-              rx={4}
-              fill={d.isOver ? '#fca5a5' : d.value === 0 ? '#bfdbfe' : '#93c5fd'}
+              rx={6}
+              fill={d.isOver ? '#f87171' : d.value === 0 ? '#e0e7ff' : '#818cf8'}
             />
             <text
               x={x + BAR_W / 2}
               y={height + 16}
               textAnchor="middle"
               fontSize={11}
-              fill="#9ca3af"
+              fill="#94a3b8"
             >
               {d.label}
             </text>
@@ -55,7 +55,7 @@ export function BarChart({ data, height = CHART_H }: Props) {
                 y={y - 4}
                 textAnchor="middle"
                 fontSize={10}
-                fill={d.isOver ? '#dc2626' : '#3b82f6'}
+                fill={d.isOver ? '#ef4444' : '#6366f1'}
               >
                 {d.value.toFixed(0)}
               </text>
@@ -70,7 +70,7 @@ export function BarChart({ data, height = CHART_H }: Props) {
         x2={totalW}
         y2={limitY}
         stroke="#fca5a5"
-        strokeWidth={1}
+        strokeWidth={1.5}
         strokeDasharray="4 3"
       />
     </svg>
