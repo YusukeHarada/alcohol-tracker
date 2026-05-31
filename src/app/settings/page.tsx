@@ -7,7 +7,7 @@ export default async function SettingsPage() {
 
   return (
     <main className="max-w-md mx-auto px-4 py-6 space-y-6">
-      <h1 className="font-semibold text-lg">目標設定</h1>
+      <h1 className="text-lg font-semibold text-slate-800">目標設定</h1>
       <GoalSettingsView goal={goal} />
     </main>
   )

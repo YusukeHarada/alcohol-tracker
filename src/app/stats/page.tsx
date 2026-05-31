@@ -39,14 +39,14 @@ export default async function StatsPage({ searchParams }: Props) {
     <main className="max-w-md mx-auto px-4 py-6 space-y-6">
       <StatsNav year={year} month={month} />
 
-      <section className="bg-white rounded-xl border shadow-sm p-5">
-        <h2 className="text-sm text-gray-500 mb-4">
+      <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
           {format(new Date(year, month - 1), 'yyyy年M月', { locale: ja })} のまとめ
         </h2>
-        <div className="grid grid-cols-2 gap-4">
-          <StatItem label="1日平均" value={`${monthlyStats.avgG.toFixed(1)} g`} />
+        <div className="grid grid-cols-2 gap-5">
+          <StatItem label="1日平均"  value={`${monthlyStats.avgG.toFixed(1)} g`} />
           <StatItem label="最大摂取量" value={`${monthlyStats.maxG.toFixed(0)} g`} />
-          <StatItem label="休肝日数" value={`${monthlyStats.restDays} 日`} />
+          <StatItem label="休肝日数"  value={`${monthlyStats.restDays} 日`} />
           <StatItem
             label="休肝率"
             value={`${(monthlyStats.restRate * 100).toFixed(0)} %`}
@@ -55,10 +55,10 @@ export default async function StatsPage({ searchParams }: Props) {
         </div>
       </section>
 
-      <section className="bg-white rounded-xl border shadow-sm p-5">
-        <h2 className="text-sm text-gray-500 mb-4">今週の飲酒量</h2>
+      <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">今週の飲酒量</h2>
         <BarChart data={weeklyBarData} />
-        <p className="text-xs text-gray-400 mt-2">破線は推奨上限（40g）</p>
+        <p className="text-xs text-slate-400 mt-2">破線は推奨上限（40g）</p>
       </section>
     </main>
   )
@@ -75,8 +75,8 @@ function StatItem({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs text-gray-400">{label}</span>
-      <span className={`text-lg font-medium ${highlight ? 'text-blue-600' : 'text-gray-800'}`}>
+      <span className="text-xs text-slate-400">{label}</span>
+      <span className={`text-xl font-semibold ${highlight ? 'text-indigo-600' : 'text-slate-800'}`}>
         {value}
       </span>
     </div>
