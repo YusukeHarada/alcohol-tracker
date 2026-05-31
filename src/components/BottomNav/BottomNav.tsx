@@ -16,16 +16,18 @@ export function BottomNav() {
 
   return (
     <nav
-      className="
-        fixed
-        bottom-0
-        left-0
-        right-0
-        bg-white
-        border-t
-        border-gray-200
-        z-40
-        pb-[env(safe-area-inset-bottom)]
+    className="
+      fixed
+      bottom-3
+      left-3
+      right-3
+      max-w-md
+      mx-auto
+      bg-white
+      rounded-2xl
+      shadow-lg
+      border
+      z-40
       "
     >
       <div className="max-w-md mx-auto flex">
