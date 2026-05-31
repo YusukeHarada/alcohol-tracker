@@ -1,3 +1,4 @@
+import { format, getDaysInMonth } from 'date-fns'
 import { createServerClient } from '@/lib/supabase/server'
 import type { IDrinkRepository, IDailySummaryRepository, NewDrinkInput } from './drinkRepository'
 import type { DrinkRecord, DailySummary } from '@/lib/types'
@@ -60,9 +61,9 @@ export class SupabaseDrinkRepository implements IDrinkRepository {
 
 export class SupabaseDailySummaryRepository implements IDailySummaryRepository {
   async listByMonth(year: number, month: number): Promise<DailySummary[]> {
-    const supabase = await createServerClient()
-    const from = `${year}-${String(month).padStart(2, '0')}-01`
-    const to   = `${year}-${String(month).padStart(2, '0')}-31`
+    const lastDay = getDaysInMonth(new Date(year, month - 1))
+    const from    = format(new Date(year, month - 1, 1),       'yyyy-MM-dd')
+    const to      = format(new Date(year, month - 1, lastDay), 'yyyy-MM-dd')
     return this.listByRange(from, to)
   }
 
