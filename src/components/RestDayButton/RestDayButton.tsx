@@ -12,7 +12,6 @@ type Props = {
 export function RestDayButton({ date, isRestDay, hasRecords }: Props) {
   const [loading, setLoading] = useState(false)
 
-  // 記録がある日は表示しない
   if (hasRecords) return null
 
   const handleRegister = async () => {
@@ -23,8 +22,8 @@ export function RestDayButton({ date, isRestDay, hasRecords }: Props) {
 
   if (isRestDay) {
     return (
-      <div className="w-full py-3 rounded-xl bg-blue-50 border border-blue-200 text-center">
-        <span className="text-blue-600 text-sm font-medium">🌿 休肝日として記録済み</span>
+      <div className="w-full py-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+        <span className="text-emerald-600 text-sm font-medium">休肝日として記録済み</span>
       </div>
     )
   }
@@ -33,9 +32,9 @@ export function RestDayButton({ date, isRestDay, hasRecords }: Props) {
     <button
       onClick={handleRegister}
       disabled={loading}
-      className="w-full py-3 rounded-xl border border-blue-300 text-blue-500 text-sm disabled:opacity-50"
+      className="w-full py-3.5 rounded-2xl border border-slate-200 text-slate-500 text-sm font-medium hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 transition-colors"
     >
-      {loading ? '登録中...' : '🌿 休肝日として記録する'}
+      {loading ? '登録中...' : '休肝日として記録する'}
     </button>
   )
 }
