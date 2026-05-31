@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { BottomNav } from '@/components/BottomNav/BottomNav'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: '飲酒記録',
@@ -14,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body className="bg-gray-50 text-gray-800 antialiased">
+      <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased`}>
         <div className="max-w-md mx-auto min-h-screen flex flex-col">
           <div className="flex-1 pb-[calc(80px+env(safe-area-inset-bottom))]">
             {children}
