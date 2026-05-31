@@ -14,6 +14,7 @@ import { WarningBanner } from '@/components/WarningBanner/WarningBanner'
 import { QuickAddButton } from '@/components/QuickAddButton/QuickAddButton'
 import { GoalCard } from '@/components/GoalCard/GoalCard'
 import { DateNav } from '@/components/DateNav/DateNav'
+import { RestDayButton } from '@/components/RestDayButton/RestDayButton'
 
 type Props = {
   searchParams: Promise<{ date?: string }>
@@ -29,7 +30,6 @@ export default async function HomePage({ searchParams }: Props) {
   const goalRepo     = new SupabaseGoalRepository()
   const templateRepo = new SupabaseTemplateRepository()
 
-  // 選択日のレコードと週次サマリーを並列取得（DBアクセス3回に削減）
   const weekStart = format(
     startOfWeek(new Date(selectedDate + 'T00:00:00'), { weekStartsOn: 1 }),
     'yyyy-MM-dd'
@@ -39,14 +39,14 @@ export default async function HomePage({ searchParams }: Props) {
     'yyyy-MM-dd'
   )
 
-  const [selectedRecords, weeklySummaries, goal, templates] = await Promise.all([
+  const [selectedRecords, weeklySummaries, selectedSummaries, goal, templates] = await Promise.all([
     drinkRepo.listByDate(selectedDate),
     summaryRepo.listByRange(weekStart, weekEnd),
+    summaryRepo.listByRange(selectedDate, selectedDate),
     goalRepo.get(),
     templateRepo.list(),
   ])
 
-  // 週次集計をsummaryMapから構築（DBアクセスなし）
   const summaryMap = Object.fromEntries(weeklySummaries.map(s => [s.date, s.totalAlcoholG]))
   const weekDays   = eachDayOfInterval({
     start: new Date(weekStart + 'T00:00:00'),
@@ -62,6 +62,10 @@ export default async function HomePage({ searchParams }: Props) {
   const restDays        = countRestDays(weeklyRecords)
   const consecutiveDays = getConsecutiveDrinkingDays(weeklyRecords)
   const hasRestDay      = hasRestDayThisWeek(weeklyRecords)
+
+  // daily_summariesに休肝日レコードが存在するか
+  const isRegisteredRestDay = selectedSummaries.length > 0 && selectedSummaries[0].isRestDay
+  const hasRecords          = selectedRecords.length > 0
 
   return (
     <main className="max-w-md mx-auto px-4 py-6 space-y-4">
@@ -91,6 +95,12 @@ export default async function HomePage({ searchParams }: Props) {
         restDaysThisWeek={restDays}
         isRestDay={isRestDay(selectedRecords)}
         records={selectedRecords}
+      />
+
+      <RestDayButton
+        date={selectedDate}
+        isRestDay={isRegisteredRestDay}
+        hasRecords={hasRecords}
       />
 
       <QuickAddButton date={selectedDate} templates={templates} />
