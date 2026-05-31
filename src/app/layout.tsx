@@ -16,7 +16,7 @@ export default function RootLayout({
     <html lang="ja">
       <body className="bg-gray-50 text-gray-800 antialiased">
         <div className="max-w-md mx-auto min-h-screen flex flex-col">
-          <div className="flex-1 pb-20">
+          <div className="flex-1 pb-[calc(80px+env(safe-area-inset-bottom))]">
             {children}
           </div>
           <BottomNav />
