@@ -25,70 +25,66 @@ export default function LoginPage() {
     router.push('/')
   }
 
-  const handleSignUp = async () => {
-    setLoading(true)
-    setError(null)
-    const supabase = createClientSideClient()
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) {
-      setError('登録に失敗しました')
-      setLoading(false)
-      return
-    }
-    router.refresh()
-    router.push('/')
-  }
+const inputClass = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-shadow'
 
   return (
-    <main className="max-w-sm mx-auto px-4 py-16 space-y-6">
-      <h1 className="text-xl font-semibold text-center">飲酒記録</h1>
-
-      <div className="space-y-3">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="email" className="text-sm text-gray-600">
-            メールアドレス
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            className="border rounded p-2"
-          />
+    <main className="min-h-screen flex items-center justify-center px-4 bg-slate-50">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-200 mb-2">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-slate-800">飲酒記録</h1>
+          <p className="text-sm text-slate-400">飲みすぎ防止・休肝日管理</p>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="password" className="text-sm text-gray-600">
-            パスワード
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="border rounded p-2"
-          />
+        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-sm font-medium text-slate-600">
+              メールアドレス
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className={inputClass}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-sm font-medium text-slate-600">
+              パスワード
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className={inputClass}
+            />
+          </div>
+
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-2xl text-sm font-semibold shadow-sm shadow-indigo-200 disabled:opacity-50 active:scale-[0.98] transition-transform"
+          >
+            {loading ? 'ログイン中...' : 'ログイン'}
+          </button>
+
         </div>
-
-        {error && (
-          <p className="text-sm text-red-600">{error}</p>
-        )}
-
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full py-3 bg-blue-500 text-white rounded-lg disabled:opacity-50"
-        >
-          ログイン
-        </button>
-
-        <button
-          onClick={handleSignUp}
-          disabled={loading}
-          className="w-full py-3 border border-gray-300 text-gray-600 rounded-lg disabled:opacity-50"
-        >
-          新規登録
-        </button>
       </div>
     </main>
   )
