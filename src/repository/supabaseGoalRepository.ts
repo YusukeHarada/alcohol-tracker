@@ -15,14 +15,19 @@ export class SupabaseGoalRepository implements IGoalRepository {
 
   async upsert(goal: Omit<UserGoal, 'id' | 'userId'>): Promise<UserGoal> {
     const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase
       .from('user_goals')
-      .upsert({
-        daily_limit_g:    goal.dailyLimitG,
-        weekly_rest_days: goal.weeklyRestDays,
-        weekly_limit_g:   goal.weeklyLimitG,
-        updated_at:       new Date().toISOString(),
-      })
+      .upsert(
+        {
+          user_id:          user?.id,
+          daily_limit_g:    goal.dailyLimitG,
+          weekly_rest_days: goal.weeklyRestDays,
+          weekly_limit_g:   goal.weeklyLimitG,
+          updated_at:       new Date().toISOString(),
+        },
+        { onConflict: 'user_id' }
+      )
       .select()
       .single()
     if (error) throw error

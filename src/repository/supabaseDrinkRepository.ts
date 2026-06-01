@@ -6,10 +6,11 @@ import type { DrinkRecord, DailySummary } from '@/lib/types'
 export class SupabaseDrinkRepository implements IDrinkRepository {
   async add(input: NewDrinkInput): Promise<DrinkRecord> {
     const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase
       .from('drink_records')
       .insert({
-        user_id:         input.userId,
+        user_id:         user?.id,
         date:            input.date,
         category:        input.category,
         volume_ml:       input.volumeMl,
@@ -81,9 +82,13 @@ export class SupabaseDailySummaryRepository implements IDailySummaryRepository {
 
   async upsert(date: string, totalAlcoholG: number): Promise<DailySummary> {
     const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase
       .from('daily_summaries')
-      .upsert({ date, total_alcohol_g: totalAlcoholG }, { onConflict: 'date' })
+      .upsert(
+        { user_id: user?.id, date, total_alcohol_g: totalAlcoholG },
+        { onConflict: 'user_id,date' }
+      )
       .select()
       .single()
     if (error) throw error

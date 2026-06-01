@@ -17,7 +17,7 @@ export async function addDrinkRecord(input: {
   const drinkRepo = new SupabaseDrinkRepository()
 
   await drinkRepo.add({
-    userId:         null,
+    userId:         '',
     date:           input.date,
     category:       input.category,
     volumeMl:       input.volumeMl,

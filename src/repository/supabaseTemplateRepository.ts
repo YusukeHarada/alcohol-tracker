@@ -15,9 +15,10 @@ export class SupabaseTemplateRepository implements ITemplateRepository {
 
   async add(name: string, items: DrinkTemplate['items']): Promise<DrinkTemplate> {
     const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase
       .from('drink_templates')
-      .insert({ name, items })
+      .insert({ user_id: user?.id, name, items })
       .select()
       .single()
     if (error) throw error
