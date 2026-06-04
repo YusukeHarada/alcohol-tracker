@@ -21,6 +21,11 @@
 | Hosting | Vercel |
 | Unit Test | Vitest + React Testing Library |
 
+## 前提条件
+
+- Node.js 18 以上
+- [Supabase](https://supabase.com) アカウント
+
 ## セットアップ
 
 ### 1. 依存インストール
@@ -64,6 +69,45 @@ npm run test:run       # 1回だけ実行
 npm run test:coverage  # カバレッジレポート付きで実行
 npm run test:ui        # ブラウザ UI で確認
 ```
+
+## アーキテクチャ
+
+### データフロー
+
+```
+ユーザー操作 → Server Action → Repository → Supabase
+                    ↓
+             revalidatePath → Server Component 再描画
+```
+
+### 各層の責務
+
+| 層 | 責務 |
+|---|---|
+| `domain/` | 副作用を持たない純粋関数。アルコール計算・集計・目標評価 |
+| `components/` | `'use client'` の UI パーツ。データ取得ロジックを持たない |
+| `actions/` | `'use server'` の Server Actions。Repository を呼び出し DB と通信 |
+| `repository/` | Supabase クエリの実装。Interface で抽象化しテスト時は InMemory 実装に差し替え可能 |
+
+### テスト方針
+
+| 対象 | 方針 |
+|---|---|
+| `domain/` | 純粋関数なのでそのままテスト |
+| `components/` | React Testing Library で UI の振る舞いをテスト |
+| `repository/` | InMemory 実装でインターフェースを検証 |
+| `actions/` | Repository をモックしてロジックをテスト |
+
+## DB 設計
+
+| テーブル | 役割 |
+|---|---|
+| `drink_records` | 1回の飲酒単位で記録。`pure_alcohol_g` は保存時に計算済みの値を格納 |
+| `daily_summaries` | `drink_records` の集計キャッシュ。カレンダー描画時に1ヶ月分を一括取得するために使用。`is_rest_day` は `total_alcohol_g = 0` の generated column |
+| `drink_templates` | JSONB 型の `items` カラムに飲み物リストを格納 |
+| `user_goals` | `user_id` に UNIQUE 制約で1ユーザー1レコード。upsert で更新 |
+
+全テーブルに RLS を設定し、ユーザーは自分のレコードのみアクセス可能。
 
 ## ディレクトリ構成
 
