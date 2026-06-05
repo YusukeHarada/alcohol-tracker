@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: '飲酒記録',
   description: '飲みすぎ防止・休肝日管理アプリ',
+  icons: {
+    apple: '/apple-touch-icon.png',
+  },
 }
 
 export default function RootLayout({
