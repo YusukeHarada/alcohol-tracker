@@ -80,13 +80,18 @@ export class SupabaseDailySummaryRepository implements IDailySummaryRepository {
     return (data ?? []).map(toSummary)
   }
 
-  async upsert(date: string, totalAlcoholG: number, isRestDay = false): Promise<DailySummary> {
+  async upsert(date: string, totalAlcoholG: number, isRestDay?: boolean): Promise<DailySummary> {
     const supabase = await createServerClient()
     const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase
       .from('daily_summaries')
       .upsert(
-        { user_id: user?.id, date, total_alcohol_g: totalAlcoholG, is_rest_day: isRestDay },
+        {
+          user_id:          user?.id,
+          date,
+          total_alcohol_g:  totalAlcoholG,
+          ...(isRestDay !== undefined && { is_rest_day: isRestDay }),
+        },
         { onConflict: 'user_id,date' }
       )
       .select()
