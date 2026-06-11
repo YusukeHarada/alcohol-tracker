@@ -16,8 +16,13 @@ export function RestDayButton({ date, isRestDay, hasRecords }: Props) {
 
   const handleRegister = async () => {
     setLoading(true)
-    await registerRestDay(date)
-    setLoading(false)
+    try {
+      await registerRestDay(date)
+    } catch {
+      alert('休肝日の登録に失敗しました')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (isRestDay) {

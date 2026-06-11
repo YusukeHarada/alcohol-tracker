@@ -27,28 +27,38 @@ export function QuickAddButton({ date, templates }: Props) {
     memo: string
   }) => {
     setLoading(true)
-    await addDrinkRecord({ ...values, date })
-    setLoading(false)
-    setOpen(false)
+    try {
+      await addDrinkRecord({ ...values, date })
+      setOpen(false)
+    } catch {
+      alert('記録の保存に失敗しました')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleTemplateSelect = async (template: DrinkTemplate) => {
     setLoading(true)
-    const items = applyTemplate(template)
-    await Promise.all(
-      items.map(item =>
-        addDrinkRecord({
-          date,
-          category:       item.category,
-          volumeMl:       item.volumeMl,
-          alcoholPercent: item.alcoholPercent,
-          pureAlcoholG:   item.pureAlcoholG,
-          memo:           template.name,
-        })
+    try {
+      const items = applyTemplate(template)
+      await Promise.all(
+        items.map(item =>
+          addDrinkRecord({
+            date,
+            category:       item.category,
+            volumeMl:       item.volumeMl,
+            alcoholPercent: item.alcoholPercent,
+            pureAlcoholG:   item.pureAlcoholG,
+            memo:           template.name,
+          })
+        )
       )
-    )
-    setLoading(false)
-    setOpen(false)
+      setOpen(false)
+    } catch {
+      alert('記録の保存に失敗しました')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

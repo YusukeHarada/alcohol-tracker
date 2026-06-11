@@ -18,20 +18,32 @@ export function TemplateListView({ templates: initial }: Props) {
 
   const handleAdd = async (values: { name: string; items: DrinkTemplate['items'] }) => {
     setLoading(true)
-    await addTemplate(values.name, values.items)
-    setTemplates(prev => [
-      ...prev,
-      { id: crypto.randomUUID(), userId: '', name: values.name, items: values.items },
-    ])
-    setShowForm(false)
-    setLoading(false)
+    try {
+      await addTemplate(values.name, values.items)
+      setTemplates(prev => [
+        ...prev,
+        { id: crypto.randomUUID(), userId: '', name: values.name, items: values.items },
+      ])
+      setShowForm(false)
+    } catch {
+      alert('テンプレートの追加に失敗しました')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleDelete = async (id: string) => {
     setLoading(true)
-    await deleteTemplate(id)
+    const snapshot = templates
     setTemplates(prev => prev.filter(t => t.id !== id))
-    setLoading(false)
+    try {
+      await deleteTemplate(id)
+    } catch {
+      setTemplates(snapshot)
+      alert('テンプレートの削除に失敗しました')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
