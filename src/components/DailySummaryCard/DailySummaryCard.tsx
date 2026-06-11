@@ -25,13 +25,21 @@ export function DailySummaryCard({
   const handleUpdate = async (id: string, patch: { memo: string }) => {
     const record = records.find(r => r.id === id)
     if (!record) return
-    await updateDrinkRecord(id, patch, record.date)
+    try {
+      await updateDrinkRecord(id, patch, record.date)
+    } catch {
+      alert('更新に失敗しました')
+    }
   }
 
   const handleDelete = async (id: string) => {
     const record = records.find(r => r.id === id)
     if (!record) return
-    await deleteDrinkRecord(id, record.date)
+    try {
+      await deleteDrinkRecord(id, record.date)
+    } catch {
+      alert('削除に失敗しました')
+    }
   }
 
   const headerGradient = isRestDay
