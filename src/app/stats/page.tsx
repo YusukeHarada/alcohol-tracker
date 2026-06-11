@@ -1,4 +1,4 @@
-import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns'
+import { format, subDays, eachDayOfInterval } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { SupabaseDailySummaryRepository } from '@/repository/supabaseDrinkRepository'
 import { buildWeeklyBarData, calcMonthlyStats } from '@/domain/stats'
@@ -23,8 +23,8 @@ export default async function StatsPage({ searchParams }: Props) {
     totalAlcoholG: s.totalAlcoholG,
   }))
 
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 })
-  const weekEnd   = endOfWeek(now,   { weekStartsOn: 1 })
+  const weekEnd   = now
+  const weekStart = subDays(now, 6)
   const weekDays  = eachDayOfInterval({ start: weekStart, end: weekEnd })
   const weeklyRecords = weekDays.map(d => {
     const dateStr = format(d, 'yyyy-MM-dd')
@@ -56,7 +56,7 @@ export default async function StatsPage({ searchParams }: Props) {
       </section>
 
       <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">今週の飲酒量</h2>
+        <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">直近7日間の飲酒量</h2>
         <BarChart data={weeklyBarData} />
         <p className="text-xs text-slate-400 mt-2">破線は推奨上限（40g）</p>
       </section>
