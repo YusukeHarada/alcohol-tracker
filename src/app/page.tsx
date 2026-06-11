@@ -1,4 +1,4 @@
-import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns'
+import { format, subDays, eachDayOfInterval } from 'date-fns'
 import { SupabaseDrinkRepository, SupabaseDailySummaryRepository } from '@/repository/supabaseDrinkRepository'
 import { SupabaseGoalRepository } from '@/repository/supabaseGoalRepository'
 import { SupabaseTemplateRepository } from '@/repository/supabaseTemplateRepository'
@@ -30,14 +30,8 @@ export default async function HomePage({ searchParams }: Props) {
   const goalRepo     = new SupabaseGoalRepository()
   const templateRepo = new SupabaseTemplateRepository()
 
-  const weekStart = format(
-    startOfWeek(new Date(selectedDate + 'T00:00:00'), { weekStartsOn: 1 }),
-    'yyyy-MM-dd'
-  )
-  const weekEnd = format(
-    endOfWeek(new Date(selectedDate + 'T00:00:00'), { weekStartsOn: 1 }),
-    'yyyy-MM-dd'
-  )
+  const weekEnd   = selectedDate
+  const weekStart = format(subDays(new Date(selectedDate + 'T00:00:00'), 6), 'yyyy-MM-dd')
 
   const [selectedRecords, weeklySummaries, selectedSummaries, goal, templates] = await Promise.all([
     drinkRepo.listByDate(selectedDate),
