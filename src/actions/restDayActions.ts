@@ -6,7 +6,7 @@ import { SupabaseDailySummaryRepository } from '@/repository/supabaseDrinkReposi
 const summaryRepo = new SupabaseDailySummaryRepository()
 
 export async function registerRestDay(date: string) {
-  await summaryRepo.upsert(date, 0, true)
+  await summaryRepo.upsert(date, 0)
   revalidatePath('/')
   revalidatePath('/calendar')
 }
