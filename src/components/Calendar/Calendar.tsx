@@ -22,6 +22,7 @@ export function Calendar({ year, month, summaries, onDayClick }: Props) {
   const days       = buildCalendarDays(year, month)
   const summaryMap = Object.fromEntries(summaries.map(s => [s.date, s]))
   const firstDow   = new Date(year, month - 1, 1).getDay()
+  const today      = new Date().toISOString().slice(0, 10)
 
   return (
     <div>
@@ -39,8 +40,9 @@ export function Calendar({ year, month, summaries, onDayClick }: Props) {
           const summary = s
             ? { totalAlcoholG: s.totalAlcoholG, isRestDay: s.isRestDay }
             : null
-          const status = getDayStatus(summary)
-          const day    = parseInt(date.split('-')[2])
+          const status  = getDayStatus(summary)
+          const day     = parseInt(date.split('-')[2])
+          const isToday = date === today
 
           return (
             <div
@@ -48,9 +50,9 @@ export function Calendar({ year, month, summaries, onDayClick }: Props) {
               data-testid={`day-${date}`}
               data-status={status}
               onClick={() => onDayClick(date)}
-              className={`rounded-lg p-1 text-center cursor-pointer text-sm ${STATUS_CLASS[status]}`}
+              className={`rounded-lg p-1 text-center cursor-pointer text-sm ${STATUS_CLASS[status]} ${isToday ? 'ring-2 ring-gray-500' : ''}`}
             >
-              <span className="block">{day}</span>
+              <span className={`block ${isToday ? 'font-bold' : ''}`}>{day}</span>
               {summary && summary.totalAlcoholG > 0 && (
                 <span className="block text-xs">
                   {summary.totalAlcoholG.toFixed(0)}g
