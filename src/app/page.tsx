@@ -41,8 +41,9 @@ export default async function HomePage({ searchParams }: Props) {
     templateRepo.list(),
   ])
 
-  const summaryMap = Object.fromEntries(weeklySummaries.map(s => [s.date, s.totalAlcoholG]))
-  const weekDays   = eachDayOfInterval({
+  const summaryMap     = Object.fromEntries(weeklySummaries.map(s => [s.date, s.totalAlcoholG]))
+  const restDaySummary = Object.fromEntries(weeklySummaries.map(s => [s.date, s.isRestDay]))
+  const weekDays       = eachDayOfInterval({
     start: new Date(weekStart + 'T00:00:00'),
     end:   new Date(weekEnd   + 'T00:00:00'),
   })
@@ -50,12 +51,14 @@ export default async function HomePage({ searchParams }: Props) {
     const dateStr = format(d, 'yyyy-MM-dd')
     return { date: dateStr, totalAlcoholG: summaryMap[dateStr] ?? 0 }
   })
+  // 今日はまだ飲酒の有無が確定していないため、休肝日登録済みでない限り休肝日カウントから除外する
+  const restDayRecords = weeklyRecords.filter(r => r.date !== today || restDaySummary[today])
 
   const dailyTotal      = calcDailyTotal(selectedRecords)
   const weeklyTotal     = calcWeeklyTotal(weeklyRecords)
-  const restDays        = countRestDays(weeklyRecords)
+  const restDays        = countRestDays(restDayRecords)
   const consecutiveDays = getConsecutiveDrinkingDays(weeklyRecords)
-  const hasRestDay      = hasRestDayThisWeek(weeklyRecords)
+  const hasRestDay      = hasRestDayThisWeek(restDayRecords)
 
   // daily_summariesに休肝日レコードが存在するか
   const isRegisteredRestDay = selectedSummaries.length > 0 && selectedSummaries[0].isRestDay
