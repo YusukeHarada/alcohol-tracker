@@ -23,12 +23,15 @@ export default async function StatsPage({ searchParams }: Props) {
     totalAlcoholG: s.totalAlcoholG,
   }))
 
-  const weekEnd   = now
-  const weekStart = subDays(now, 6)
+  const weekEnd      = now
+  const weekStart    = subDays(now, 6)
+  const weekStartStr = format(weekStart, 'yyyy-MM-dd')
+  const weekEndStr   = format(weekEnd, 'yyyy-MM-dd')
+  const weekSummaries = await summaryRepo.listByRange(weekStartStr, weekEndStr)
   const weekDays  = eachDayOfInterval({ start: weekStart, end: weekEnd })
   const weeklyRecords = weekDays.map(d => {
     const dateStr = format(d, 'yyyy-MM-dd')
-    const found   = summaries.find(s => s.date === dateStr)
+    const found   = weekSummaries.find(s => s.date === dateStr)
     return { date: dateStr, totalAlcoholG: found?.totalAlcoholG ?? 0 }
   })
 
