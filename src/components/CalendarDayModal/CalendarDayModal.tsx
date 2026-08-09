@@ -6,20 +6,16 @@ import { ja } from 'date-fns/locale'
 import { calcDailyTotal, isRestDay } from '@/domain/alcohol'
 import { DrinkForm } from '@/components/DrinkForm/DrinkForm'
 import { DrinkRecordItem } from '@/components/DrinkRecordItem/DrinkRecordItem'
+import type { DrinkRecordPatch } from '@/components/DrinkRecordItem/DrinkRecordItem'
+import type { CountedDrinkEntry } from '@/domain/drinkEntry'
 import type { DrinkRecord } from '@/lib/types'
 
 type Props = {
   date: string
   records: DrinkRecord[]
   onClose: () => void
-  onAdd: (values: {
-    category: string
-    volumeMl: number
-    alcoholPercent: number
-    pureAlcoholG: number
-    memo: string
-  }) => Promise<void>
-  onUpdate: (id: string, patch: { memo: string }) => Promise<void>
+  onAdd: (values: CountedDrinkEntry) => Promise<void>
+  onUpdate: (id: string, patch: DrinkRecordPatch) => Promise<void>
   onDelete: (id: string) => Promise<void>
 }
 
@@ -32,13 +28,7 @@ export function CalendarDayModal({
   const total = calcDailyTotal(records)
   const rest  = isRestDay(records)
 
-  const handleAdd = async (values: {
-    category: string
-    volumeMl: number
-    alcoholPercent: number
-    pureAlcoholG: number
-    memo: string
-  }) => {
+  const handleAdd = async (values: CountedDrinkEntry) => {
     setLoading(true)
     await onAdd(values)
     setLoading(false)

@@ -5,6 +5,8 @@ import { Calendar } from '@/components/Calendar/Calendar'
 import { CalendarNav } from '@/components/CalendarNav/CalendarNav'
 import { CalendarDayModal } from '@/components/CalendarDayModal/CalendarDayModal'
 import { addDrinkRecord, updateDrinkRecord, deleteDrinkRecord } from '@/actions/drinkActions'
+import type { CountedDrinkEntry } from '@/domain/drinkEntry'
+import type { DrinkRecordPatch } from '@/components/DrinkRecordItem/DrinkRecordItem'
 import { createClientSideClient } from '@/lib/supabase/client'
 import type { DailySummary, DrinkRecord } from '@/lib/types'
 
@@ -50,19 +52,13 @@ export function CalendarView({ year, month, summaries }: Props) {
     await fetchDayRecords(date)
   }
 
-  const handleAdd = async (values: {
-    category: string
-    volumeMl: number
-    alcoholPercent: number
-    pureAlcoholG: number
-    memo: string
-  }) => {
+  const handleAdd = async (values: CountedDrinkEntry) => {
     if (!selectedDate) return
     await addDrinkRecord({ ...values, date: selectedDate })
     await fetchDayRecords(selectedDate)
   }
 
-  const handleUpdate = async (id: string, patch: { memo: string }) => {
+  const handleUpdate = async (id: string, patch: DrinkRecordPatch) => {
     if (!selectedDate) return
     await updateDrinkRecord(id, patch, selectedDate)
     await fetchDayRecords(selectedDate)

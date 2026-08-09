@@ -78,6 +78,7 @@ export default async function HomePage({ searchParams }: Props) {
         weeklyTotalG={weeklyTotal}
         consecutiveDays={consecutiveDays}
         hasRestDayThisWeek={hasRestDay}
+        goal={goal}
       />
 
       <QuickAddChips date={selectedDate} candidates={quickAddCandidates} />
@@ -94,11 +95,13 @@ export default async function HomePage({ searchParams }: Props) {
       )}
 
       <DailySummaryCard
+        date={selectedDate}
         dailyTotalG={dailyTotal}
         weeklyTotalG={weeklyTotal}
         restDaysThisWeek={restDays}
         isRestDay={isRestDay(selectedRecords)}
         records={selectedRecords}
+        goal={goal}
       />
 
       <RestDayButton

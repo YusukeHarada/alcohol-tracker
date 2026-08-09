@@ -73,6 +73,7 @@ export class SupabaseDrinkRepository implements IDrinkRepository {
     const { data, error } = await supabase
       .from('drink_records')
       .update({
+        ...(patch.category !== undefined && { category: patch.category }),
         ...(patch.volumeMl !== undefined && { volume_ml: patch.volumeMl }),
         ...(patch.alcoholPercent !== undefined && { alcohol_percent: patch.alcoholPercent }),
         ...(patch.pureAlcoholG !== undefined && { pure_alcohol_g: patch.pureAlcoholG }),

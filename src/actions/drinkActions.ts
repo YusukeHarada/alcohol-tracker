@@ -48,7 +48,7 @@ export async function addDrinkRecord(input: CountedDrinkEntry & { date: string }
 
 export async function updateDrinkRecord(
   id: string,
-  patch: { volumeMl?: number; alcoholPercent?: number; memo?: string },
+  patch: { category?: string; volumeMl?: number; alcoholPercent?: number; memo?: string },
   date: string
 ) {
   const drinkRepo    = new SupabaseDrinkRepository()
