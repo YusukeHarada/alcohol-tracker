@@ -2,6 +2,12 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Vercel Cron のリクエストは Cookie を持たないため認証をスキップする。
+  // /api/cron 配下は route handler 側で CRON_SECRET を検証すること。
+  if (request.nextUrl.pathname.startsWith('/api/cron')) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
