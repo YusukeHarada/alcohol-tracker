@@ -1,6 +1,7 @@
 'use client'
 
 import { buildCalendarDays, getDayStatus } from '@/domain/calendar'
+import { todayJst } from '@/domain/jstDate'
 import type { DayStatus } from '@/domain/calendar'
 import type { DailySummary } from '@/lib/types'
 
@@ -22,7 +23,7 @@ export function Calendar({ year, month, summaries, onDayClick }: Props) {
   const days       = buildCalendarDays(year, month)
   const summaryMap = Object.fromEntries(summaries.map(s => [s.date, s]))
   const firstDow   = new Date(year, month - 1, 1).getDay()
-  const today      = new Date().toISOString().slice(0, 10)
+  const today      = todayJst()
 
   return (
     <div>

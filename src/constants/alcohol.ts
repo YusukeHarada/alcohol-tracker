@@ -2,6 +2,12 @@ export const DAILY_LIMIT_G = 40
 export const WEEKLY_LIMIT_G = 280
 export const CONSECUTIVE_ALERT_DAYS = 3
 
+// ワンタップ記録チップの生成パラメータ
+// 60日：1ヶ月記録が止まっても「いつもの酒」が候補に戻る長さ
+// 4個 ：max-w-md の中で2列×2行に収まる上限
+export const QUICK_ADD_LOOKBACK_DAYS = 60
+export const QUICK_ADD_CHIP_COUNT = 4
+
 export const DRINK_CATEGORIES = [
   { value: 't-hi',  label: '宝ハイボール', defaultMl: 500, defaultPercent: 7   },
   { value: 'beer',    label: 'ビール',     defaultMl: 500, defaultPercent: 5   },
