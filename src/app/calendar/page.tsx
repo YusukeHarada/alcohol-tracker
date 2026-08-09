@@ -1,4 +1,5 @@
 import { SupabaseDailySummaryRepository } from '@/repository/supabaseDrinkRepository'
+import { todayJst } from '@/domain/jstDate'
 import { CalendarView } from '@/components/CalendarView/CalendarView'
 
 type Props = {
@@ -7,9 +8,9 @@ type Props = {
 
 export default async function CalendarPage({ searchParams }: Props) {
   const params = await searchParams
-  const now   = new Date()
-  const year  = parseInt(params.year  ?? String(now.getFullYear()))
-  const month = parseInt(params.month ?? String(now.getMonth() + 1))
+  const today = todayJst()
+  const year  = parseInt(params.year  ?? today.slice(0, 4))
+  const month = parseInt(params.month ?? today.slice(5, 7))
 
   const summaryRepo = new SupabaseDailySummaryRepository()
   const summaries   = await summaryRepo.listByMonth(year, month)

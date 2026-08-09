@@ -9,6 +9,15 @@ export function toJstDateString(now: Date): string {
   return new Date(now.getTime() + JST_OFFSET_MS).toISOString().slice(0, 10)
 }
 
+/**
+ * 「今日」のyyyy-MM-dd。アプリ内で今日を求めるときは必ずこれを使う。
+ * サーバー（Vercelは常にUTC）でもブラウザ（端末のTZ次第）でも同じ値を返すので、
+ * SSRとクライアントで日付がズレない。
+ */
+export function todayJst(): string {
+  return toJstDateString(new Date())
+}
+
 /** yyyy-MM-dd を days 日ずらす。タイムゾーンに依存しない */
 export function shiftDateString(date: string, days: number): string {
   const d = new Date(date + 'T00:00:00Z')

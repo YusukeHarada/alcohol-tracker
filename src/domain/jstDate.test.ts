@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { toJstDateString, shiftDateString, formatShortDate } from './jstDate'
+import { describe, it, expect, afterEach, vi } from 'vitest'
+import { toJstDateString, todayJst, shiftDateString, formatShortDate } from './jstDate'
 
 describe('toJstDateString', () => {
   it('cron実行時刻（12:00 UTC）はJSTでも同じ日付', () => {
@@ -16,6 +16,18 @@ describe('toJstDateString', () => {
 
   it('UTCでは前日でもJSTでは翌日になる（UTC 深夜帯）', () => {
     expect(toJstDateString(new Date('2026-08-09T16:30:00Z'))).toBe('2026-08-10')
+  })
+})
+
+describe('todayJst', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('UTCの日付ではなくJSTの日付を返す', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-09T16:30:00Z'))
+    expect(todayJst()).toBe('2026-08-10')
   })
 })
 

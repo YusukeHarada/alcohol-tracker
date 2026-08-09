@@ -1,7 +1,8 @@
-import { format, subDays, eachDayOfInterval } from 'date-fns'
+import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { SupabaseDailySummaryRepository } from '@/repository/supabaseDrinkRepository'
 import { buildWeeklyBarData, calcMonthlyStats } from '@/domain/stats'
+import { todayJst, shiftDateString } from '@/domain/jstDate'
 import { BarChart } from '@/components/BarChart/BarChart'
 import { StatsNav } from '@/components/StatsNav/StatsNav'
 
@@ -11,9 +12,9 @@ type Props = {
 
 export default async function StatsPage({ searchParams }: Props) {
   const params = await searchParams
-  const now   = new Date()
-  const year  = parseInt(params.year  ?? String(now.getFullYear()))
-  const month = parseInt(params.month ?? String(now.getMonth() + 1))
+  const today = todayJst()
+  const year  = parseInt(params.year  ?? today.slice(0, 4))
+  const month = parseInt(params.month ?? today.slice(5, 7))
 
   const summaryRepo = new SupabaseDailySummaryRepository()
   const summaries   = await summaryRepo.listByMonth(year, month)
@@ -23,14 +24,10 @@ export default async function StatsPage({ searchParams }: Props) {
     totalAlcoholG: s.totalAlcoholG,
   }))
 
-  const weekEnd      = now
-  const weekStart    = subDays(now, 6)
-  const weekStartStr = format(weekStart, 'yyyy-MM-dd')
-  const weekEndStr   = format(weekEnd, 'yyyy-MM-dd')
-  const weekSummaries = await summaryRepo.listByRange(weekStartStr, weekEndStr)
-  const weekDays  = eachDayOfInterval({ start: weekStart, end: weekEnd })
-  const weeklyRecords = weekDays.map(d => {
-    const dateStr = format(d, 'yyyy-MM-dd')
+  const weekStartStr  = shiftDateString(today, -6)
+  const weekSummaries = await summaryRepo.listByRange(weekStartStr, today)
+  const weeklyRecords = Array.from({ length: 7 }, (_, i) => {
+    const dateStr = shiftDateString(weekStartStr, i)
     const found   = weekSummaries.find(s => s.date === dateStr)
     return { date: dateStr, totalAlcoholG: found?.totalAlcoholG ?? 0 }
   })
