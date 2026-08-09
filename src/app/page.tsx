@@ -5,7 +5,6 @@ import { calcDailyTotal, isRestDay } from '@/domain/alcohol'
 import {
   calcWeeklyTotal,
   countRestDays,
-  hasRestDayThisWeek,
   getConsecutiveDrinkingDays,
 } from '@/domain/weeklyStats'
 import { buildQuickAddCandidates } from '@/domain/quickAdd'
@@ -61,7 +60,6 @@ export default async function HomePage({ searchParams }: Props) {
   const weeklyTotal     = calcWeeklyTotal(weeklyRecords)
   const restDays        = countRestDays(restDayRecords)
   const consecutiveDays = getConsecutiveDrinkingDays(weeklyRecords)
-  const hasRestDay      = hasRestDayThisWeek(restDayRecords)
 
   // daily_summariesに休肝日レコードが存在するか
   const isRegisteredRestDay = selectedSummaries.length > 0 && selectedSummaries[0].isRestDay
@@ -77,7 +75,7 @@ export default async function HomePage({ searchParams }: Props) {
         dailyTotalG={dailyTotal}
         weeklyTotalG={weeklyTotal}
         consecutiveDays={consecutiveDays}
-        hasRestDayThisWeek={hasRestDay}
+        weeklyRestDays={restDays}
         goal={goal}
       />
 
