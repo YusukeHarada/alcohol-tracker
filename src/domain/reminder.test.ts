@@ -46,7 +46,7 @@ describe('buildReminderMessage', () => {
 
   it('目標があり上限内なら目標行だけ出す', () => {
     const message = buildReminderMessage(state({ goal, weeklyTotalG: 92.34 }), APP_URL)!
-    expect(message).toContain('目標: 週 200g以下 ／ 休肝日 2日以上')
+    expect(message).toContain('目標: 200g以下 ／ 休肝日 2日以上')
     expect(message).not.toContain('⚠️')
   })
 

@@ -23,12 +23,12 @@ export function buildReminderMessage(state: ReminderState, appUrl: string): stri
   const lines = [
     `🍶 ${formatShortDate(state.date)} の記録がまだです`,
     '',
-    `今週: 合計 ${state.weeklyTotalG.toFixed(1)}g ／ 休肝日 ${state.weeklyRestDays}日`,
+    `直近7日: 合計 ${state.weeklyTotalG.toFixed(1)}g ／ 休肝日 ${state.weeklyRestDays}日`,
   ]
 
   if (state.goal) {
     lines.push(
-      `目標: 週 ${state.goal.weeklyLimitG}g以下 ／ 休肝日 ${state.goal.weeklyRestDays}日以上`
+      `目標: ${state.goal.weeklyLimitG}g以下 ／ 休肝日 ${state.goal.weeklyRestDays}日以上`
     )
     if (isOverWeeklyLimit(state.weeklyTotalG, state.goal.weeklyLimitG)) {
       lines.push('⚠️ 週の上限を超えています')

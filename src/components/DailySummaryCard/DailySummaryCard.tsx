@@ -1,28 +1,37 @@
 'use client'
 
 import { DrinkRecordItem } from '@/components/DrinkRecordItem/DrinkRecordItem'
+import type { DrinkRecordPatch } from '@/components/DrinkRecordItem/DrinkRecordItem'
 import { updateDrinkRecord, deleteDrinkRecord } from '@/actions/drinkActions'
+import { formatDisplayDate } from '@/domain/dateNav'
 import { DAILY_LIMIT_G } from '@/constants/alcohol'
-import type { DrinkRecord } from '@/lib/types'
+import type { DrinkRecord, UserGoal } from '@/lib/types'
 
 type Props = {
+  date: string
   dailyTotalG: number
   weeklyTotalG: number
   restDaysThisWeek: number
   isRestDay: boolean
   records: DrinkRecord[]
+  goal: UserGoal | null
 }
 
 export function DailySummaryCard({
+  date,
   dailyTotalG,
   weeklyTotalG,
   restDaysThisWeek,
   isRestDay,
   records,
+  goal,
 }: Props) {
-  const overDaily = dailyTotalG > DAILY_LIMIT_G
+  // 見出しは選択中の日付に追従させる。以前は「今日の摂取量」で固定だったため、
+  // DateNavで昨日に移動すると「今日の摂取量」に昨日の数字が並んでいた。
+  const dateLabel = formatDisplayDate(date)
+  const overDaily = dailyTotalG > (goal?.dailyLimitG ?? DAILY_LIMIT_G)
 
-  const handleUpdate = async (id: string, patch: { memo: string }) => {
+  const handleUpdate = async (id: string, patch: DrinkRecordPatch) => {
     const record = records.find(r => r.id === id)
     if (!record) return
     try {
@@ -52,7 +61,7 @@ export function DailySummaryCard({
     <div className="rounded-2xl bg-white shadow-sm border border-slate-100 overflow-hidden">
       <div className={`bg-gradient-to-r ${headerGradient} px-5 py-4`}>
         <div className="flex items-end justify-between">
-          <span className="text-white/70 text-sm font-medium">今日の摂取量</span>
+          <span className="text-white/70 text-sm font-medium">{dateLabel}の摂取量</span>
           {isRestDay ? (
             <span className="text-white text-xl font-semibold">休肝日</span>
           ) : (
@@ -66,14 +75,14 @@ export function DailySummaryCard({
 
       <div className="px-5 py-4 grid grid-cols-2 gap-4">
         <div>
-          <p className="text-xs text-slate-400 mb-1">今週の合計</p>
+          <p className="text-xs text-slate-400 mb-1">直近7日の合計</p>
           <p className="text-xl font-semibold text-slate-700">
             {weeklyTotalG.toFixed(1)}
             <span className="text-sm font-normal text-slate-400 ml-1">g</span>
           </p>
         </div>
         <div>
-          <p className="text-xs text-slate-400 mb-1">今週の休肝日</p>
+          <p className="text-xs text-slate-400 mb-1">直近7日の休肝日</p>
           <p className="text-xl font-semibold text-slate-700">
             {restDaysThisWeek}
             <span className="text-sm font-normal text-slate-400 ml-1">日</span>

@@ -36,7 +36,7 @@ export function GoalCard({ goal, actual }: Props) {
 
   return (
     <div className="rounded-2xl bg-white shadow-sm border border-slate-100 p-5 space-y-4">
-      <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">今週の目標</h2>
+      <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">目標（直近7日）</h2>
       <div className="space-y-3.5">
         {progressItems.map(item => (
           <div key={item.label} className="space-y-1.5">
