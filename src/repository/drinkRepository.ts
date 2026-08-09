@@ -5,6 +5,7 @@ export type NewDrinkInput = Omit<DrinkRecord, 'id' | 'createdAt' | 'updatedAt'>
 export interface IDrinkRepository {
   add(record: NewDrinkInput): Promise<DrinkRecord>
   listByDate(date: string): Promise<DrinkRecord[]>
+  listByRange(from: string, to: string): Promise<DrinkRecord[]>
   update(id: string, patch: Partial<NewDrinkInput>): Promise<DrinkRecord>
   delete(id: string): Promise<void>
 }

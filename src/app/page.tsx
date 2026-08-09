@@ -9,9 +9,12 @@ import {
   hasRestDayThisWeek,
   getConsecutiveDrinkingDays,
 } from '@/domain/weeklyStats'
+import { buildQuickAddCandidates } from '@/domain/quickAdd'
+import { QUICK_ADD_LOOKBACK_DAYS } from '@/constants/alcohol'
 import { DailySummaryCard } from '@/components/DailySummaryCard/DailySummaryCard'
 import { WarningBanner } from '@/components/WarningBanner/WarningBanner'
 import { QuickAddButton } from '@/components/QuickAddButton/QuickAddButton'
+import { QuickAddChips } from '@/components/QuickAddChips/QuickAddChips'
 import { GoalCard } from '@/components/GoalCard/GoalCard'
 import { DateNav } from '@/components/DateNav/DateNav'
 import { RestDayButton } from '@/components/RestDayButton/RestDayButton'
@@ -32,14 +35,21 @@ export default async function HomePage({ searchParams }: Props) {
 
   const weekEnd   = selectedDate
   const weekStart = format(subDays(new Date(selectedDate + 'T00:00:00'), 6), 'yyyy-MM-dd')
+  // ワンタップ記録チップの元になる履歴の範囲
+  const lookbackStart = format(
+    subDays(new Date(selectedDate + 'T00:00:00'), QUICK_ADD_LOOKBACK_DAYS - 1),
+    'yyyy-MM-dd'
+  )
 
-  const [selectedRecords, weeklySummaries, selectedSummaries, goal, templates] = await Promise.all([
-    drinkRepo.listByDate(selectedDate),
-    summaryRepo.listByRange(weekStart, weekEnd),
-    summaryRepo.listByRange(selectedDate, selectedDate),
-    goalRepo.get(),
-    templateRepo.list(),
-  ])
+  const [selectedRecords, weeklySummaries, selectedSummaries, goal, templates, historyRecords] =
+    await Promise.all([
+      drinkRepo.listByDate(selectedDate),
+      summaryRepo.listByRange(weekStart, weekEnd),
+      summaryRepo.listByRange(selectedDate, selectedDate),
+      goalRepo.get(),
+      templateRepo.list(),
+      drinkRepo.listByRange(lookbackStart, selectedDate),
+    ])
 
   const summaryMap     = Object.fromEntries(weeklySummaries.map(s => [s.date, s.totalAlcoholG]))
   const restDaySummary = Object.fromEntries(weeklySummaries.map(s => [s.date, s.isRestDay]))
@@ -64,6 +74,8 @@ export default async function HomePage({ searchParams }: Props) {
   const isRegisteredRestDay = selectedSummaries.length > 0 && selectedSummaries[0].isRestDay
   const hasRecords          = selectedRecords.length > 0
 
+  const quickAddCandidates = buildQuickAddCandidates(historyRecords)
+
   return (
     <main className="max-w-md mx-auto px-4 py-6 space-y-4">
       <DateNav date={selectedDate} today={today} />
@@ -74,6 +86,8 @@ export default async function HomePage({ searchParams }: Props) {
         consecutiveDays={consecutiveDays}
         hasRestDayThisWeek={hasRestDay}
       />
+
+      <QuickAddChips date={selectedDate} candidates={quickAddCandidates} />
 
       {goal && (
         <GoalCard

@@ -35,6 +35,19 @@ export class SupabaseDrinkRepository implements IDrinkRepository {
     return (data ?? []).map(toRecord)
   }
 
+  async listByRange(from: string, to: string): Promise<DrinkRecord[]> {
+    const supabase = await createServerClient()
+    const { data, error } = await supabase
+      .from('drink_records')
+      .select('*')
+      .gte('date', from)
+      .lte('date', to)
+      .order('date')
+      .order('created_at')
+    if (error) throw error
+    return (data ?? []).map(toRecord)
+  }
+
   async update(id: string, patch: Partial<NewDrinkInput>): Promise<DrinkRecord> {
     const supabase = await createServerClient()
     const { data, error } = await supabase
