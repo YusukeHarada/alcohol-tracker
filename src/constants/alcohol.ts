@@ -7,6 +7,8 @@ export const CONSECUTIVE_ALERT_DAYS = 3
 // 4個 ：max-w-md の中で2列×2行に収まる上限
 export const QUICK_ADD_LOOKBACK_DAYS = 60
 export const QUICK_ADD_CHIP_COUNT = 4
+// チップの「+」で指定できる本数の上限。ここを超えると1本に戻る（減らす操作を兼ねる）
+export const QUICK_ADD_MAX_TAP_COUNT = 6
 
 export const DRINK_CATEGORIES = [
   { value: 't-hi',  label: '宝ハイボール', defaultMl: 500, defaultPercent: 7   },
