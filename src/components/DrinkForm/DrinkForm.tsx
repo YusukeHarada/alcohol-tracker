@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { calcPureAlcohol } from '@/domain/alcohol'
+import { MAX_DRINK_COUNT } from '@/domain/drinkEntry'
 import { DRINK_CATEGORIES } from '@/constants/alcohol'
 
 type SubmitValues = {
@@ -10,6 +11,7 @@ type SubmitValues = {
   alcoholPercent: number
   pureAlcoholG: number
   memo: string
+  count: number
 }
 
 type Props = {
@@ -25,6 +27,7 @@ export function DrinkForm({ onSubmit }: Props) {
   const [volumeMl,       setVolumeMl]       = useState(String(initial.defaultMl))
   const [alcoholPercent, setAlcoholPercent] = useState(String(initial.defaultPercent))
   const [memo,           setMemo]           = useState('')
+  const [count,          setCount]          = useState('1')
 
   const volume  = parseFloat(volumeMl)
   const percent = parseFloat(alcoholPercent)
@@ -32,6 +35,10 @@ export function DrinkForm({ onSubmit }: Props) {
     !isNaN(volume) && !isNaN(percent) && volume > 0 && percent > 0
       ? calcPureAlcohol(volume, percent)
       : null
+
+  const countNum    = parseInt(count, 10)
+  const countValid  = Number.isInteger(countNum) && countNum >= 1 && countNum <= MAX_DRINK_COUNT
+  const totalPreview = preview !== null && countValid ? preview * countNum : null
 
   const handleCategoryChange = (value: string) => {
     setCategory(value)
@@ -44,12 +51,14 @@ export function DrinkForm({ onSubmit }: Props) {
 
   const handleSubmit = () => {
     if (!volumeMl || !alcoholPercent || isNaN(volume) || isNaN(percent)) return
+    if (!countValid) return
     onSubmit({
       category,
       volumeMl:       volume,
       alcoholPercent: percent,
       pureAlcoholG:   preview ?? 0,
       memo,
+      count:          countNum,
     })
   }
 
@@ -90,12 +99,37 @@ export function DrinkForm({ onSubmit }: Props) {
             className={inputClass}
           />
         </div>
+        <div className="w-20 flex flex-col gap-1.5">
+          <label htmlFor="count" className={labelClass}>本数</label>
+          <input
+            id="count"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={MAX_DRINK_COUNT}
+            value={count}
+            onChange={e => setCount(e.target.value)}
+            aria-invalid={!countValid}
+            className={`${inputClass} ${countValid ? '' : 'border-red-300 focus:ring-red-200'}`}
+          />
+        </div>
       </div>
 
-      {preview !== null && (
+      {!countValid && (
+        <p className="text-xs text-red-500">本数は1〜{MAX_DRINK_COUNT}の整数で入力してください</p>
+      )}
+
+      {totalPreview !== null && (
         <div className="flex items-center justify-between bg-indigo-50 rounded-xl px-4 py-3">
-          <span className="text-sm text-indigo-600">純アルコール量</span>
-          <span className="text-lg font-bold text-indigo-700">{preview.toFixed(1)} g</span>
+          <div className="flex flex-col">
+            <span className="text-sm text-indigo-600">純アルコール量</span>
+            {countNum > 1 && (
+              <span className="text-xs text-indigo-400 mt-0.5">
+                {preview?.toFixed(1)} g × {countNum}本
+              </span>
+            )}
+          </div>
+          <span className="text-lg font-bold text-indigo-700">{totalPreview.toFixed(1)} g</span>
         </div>
       )}
 
@@ -113,9 +147,10 @@ export function DrinkForm({ onSubmit }: Props) {
 
       <button
         onClick={handleSubmit}
-        className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-sm font-semibold shadow-sm active:scale-[0.98] transition-transform"
+        disabled={!countValid}
+        className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-sm font-semibold shadow-sm active:scale-[0.98] transition-transform disabled:opacity-50 disabled:active:scale-100"
       >
-        記録する
+        {countValid && countNum > 1 ? `${countNum}本を記録する` : '記録する'}
       </button>
     </div>
   )

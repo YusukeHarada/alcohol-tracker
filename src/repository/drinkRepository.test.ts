@@ -17,6 +17,10 @@ class InMemoryDrinkRepository implements IDrinkRepository {
     return record
   }
 
+  async addMany(inputs: NewDrinkInput[]): Promise<DrinkRecord[]> {
+    return Promise.all(inputs.map(input => this.add(input)))
+  }
+
   async listByDate(date: string): Promise<DrinkRecord[]> {
     return this.records.filter(r => r.date === date)
   }

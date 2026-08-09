@@ -24,6 +24,26 @@ export class SupabaseDrinkRepository implements IDrinkRepository {
     return toRecord(data)
   }
 
+  async addMany(inputs: NewDrinkInput[]): Promise<DrinkRecord[]> {
+    if (inputs.length === 0) return []
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data, error } = await supabase
+      .from('drink_records')
+      .insert(inputs.map(input => ({
+        user_id:         user?.id,
+        date:            input.date,
+        category:        input.category,
+        volume_ml:       input.volumeMl,
+        alcohol_percent: input.alcoholPercent,
+        pure_alcohol_g:  input.pureAlcoholG,
+        memo:            input.memo,
+      })))
+      .select()
+    if (error) throw error
+    return (data ?? []).map(toRecord)
+  }
+
   async listByDate(date: string): Promise<DrinkRecord[]> {
     const supabase = await createServerClient()
     const { data, error } = await supabase

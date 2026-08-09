@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { DrinkForm } from '@/components/DrinkForm/DrinkForm'
 import { TemplateSelector } from '@/components/TemplateSelector/TemplateSelector'
-import { addDrinkRecord } from '@/actions/drinkActions'
+import { addDrinkRecords } from '@/actions/drinkActions'
 import { applyTemplate } from '@/domain/template'
 import type { DrinkTemplate } from '@/lib/types'
 
@@ -25,10 +25,11 @@ export function QuickAddButton({ date, templates }: Props) {
     alcoholPercent: number
     pureAlcoholG: number
     memo: string
+    count: number
   }) => {
     setLoading(true)
     try {
-      await addDrinkRecord({ ...values, date })
+      await addDrinkRecords(date, [values])
       setOpen(false)
     } catch {
       alert('記録の保存に失敗しました')
@@ -41,18 +42,15 @@ export function QuickAddButton({ date, templates }: Props) {
     setLoading(true)
     try {
       const items = applyTemplate(template)
-      await Promise.all(
-        items.map(item =>
-          addDrinkRecord({
-            date,
-            category:       item.category,
-            volumeMl:       item.volumeMl,
-            alcoholPercent: item.alcoholPercent,
-            pureAlcoholG:   item.pureAlcoholG,
-            memo:           template.name,
-          })
-        )
-      )
+      // 1回の呼び出しにまとめる。個別に並列で呼ぶと各呼び出しが挿入途中の状態を
+      // 読んで daily_summaries を古い合計で上書きしうる
+      await addDrinkRecords(date, items.map(item => ({
+        category:       item.category,
+        volumeMl:       item.volumeMl,
+        alcoholPercent: item.alcoholPercent,
+        pureAlcoholG:   item.pureAlcoholG,
+        memo:           template.name,
+      })))
       setOpen(false)
     } catch {
       alert('記録の保存に失敗しました')
