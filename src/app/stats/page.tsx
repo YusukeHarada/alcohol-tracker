@@ -19,10 +19,13 @@ export default async function StatsPage({ searchParams }: Props) {
   const summaryRepo = new SupabaseDailySummaryRepository()
   const summaries   = await summaryRepo.listByMonth(year, month)
 
-  const dailyRecords = summaries.map(s => ({
-    date: s.date,
-    totalAlcoholG: s.totalAlcoholG,
-  }))
+  const dailyRecords = summaries
+    // 今日はまだ飲酒の有無が確定していないため、休肝日登録済みでない限り集計から除外する
+    .filter(s => s.date !== today || s.isRestDay)
+    .map(s => ({
+      date: s.date,
+      totalAlcoholG: s.totalAlcoholG,
+    }))
 
   const weekStartStr  = shiftDateString(today, -6)
   const weekSummaries = await summaryRepo.listByRange(weekStartStr, today)
