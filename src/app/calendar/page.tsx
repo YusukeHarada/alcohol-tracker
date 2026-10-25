@@ -1,4 +1,5 @@
 import { SupabaseDailySummaryRepository } from '@/repository/supabaseDrinkRepository'
+import { SupabaseGoalRepository } from '@/repository/supabaseGoalRepository'
 import { todayJst } from '@/domain/jstDate'
 import { CalendarView } from '@/components/CalendarView/CalendarView'
 
@@ -13,11 +14,15 @@ export default async function CalendarPage({ searchParams }: Props) {
   const month = parseInt(params.month ?? today.slice(5, 7))
 
   const summaryRepo = new SupabaseDailySummaryRepository()
-  const summaries   = await summaryRepo.listByMonth(year, month)
+  const goalRepo    = new SupabaseGoalRepository()
+  const [summaries, goal] = await Promise.all([
+    summaryRepo.listByMonth(year, month),
+    goalRepo.get(),
+  ])
 
   return (
     <main className="max-w-md mx-auto px-4 py-6 space-y-4">
-      <CalendarView year={year} month={month} summaries={summaries} />
+      <CalendarView year={year} month={month} summaries={summaries} dailyLimitG={goal?.dailyLimitG} />
     </main>
   )
 }

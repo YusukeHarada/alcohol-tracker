@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { upsertGoal } from '@/actions/goalActions'
+import { DAILY_LIMIT_G, WEEKLY_LIMIT_G } from '@/constants/alcohol'
 import type { UserGoal } from '@/lib/types'
 
 type Props = {
@@ -15,9 +16,9 @@ const hintClass  = 'text-xs text-slate-400 mt-0.5'
 
 export function GoalSettingsView({ goal }: Props) {
   const router = useRouter()
-  const [dailyLimitG,    setDailyLimitG]    = useState(String(goal?.dailyLimitG    ?? 40))
+  const [dailyLimitG,    setDailyLimitG]    = useState(String(goal?.dailyLimitG    ?? DAILY_LIMIT_G))
   const [weeklyRestDays, setWeeklyRestDays] = useState(String(goal?.weeklyRestDays ?? 2))
-  const [weeklyLimitG,   setWeeklyLimitG]   = useState(String(goal?.weeklyLimitG   ?? 200))
+  const [weeklyLimitG,   setWeeklyLimitG]   = useState(String(goal?.weeklyLimitG   ?? WEEKLY_LIMIT_G))
   const [saving,         setSaving]         = useState(false)
 
   const handleSave = async () => {
@@ -45,7 +46,7 @@ export function GoalSettingsView({ goal }: Props) {
             onChange={e => setDailyLimitG(e.target.value)}
             className={inputClass}
           />
-          <p className={hintClass}>厚生労働省の推奨は40g</p>
+          <p className={hintClass}>40gを超えると生活習慣病のリスクが高まる（厚生労働省）</p>
         </div>
 
         <div className="flex flex-col gap-1.5">

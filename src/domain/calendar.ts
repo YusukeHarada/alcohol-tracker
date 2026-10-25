@@ -15,9 +15,9 @@ export function buildCalendarDays(year: number, month: number): string[] {
   })
 }
 
-export function getDayStatus(summary: SummaryLike): DayStatus {
+export function getDayStatus(summary: SummaryLike, dailyLimitG = DAILY_LIMIT_G): DayStatus {
   if (!summary) return 'empty'
   if (summary.isRestDay) return 'rest'
-  if (summary.totalAlcoholG > DAILY_LIMIT_G) return 'over'
+  if (summary.totalAlcoholG > dailyLimitG) return 'over'
   return 'drinking'
 }

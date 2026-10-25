@@ -21,9 +21,10 @@ type Props = {
   year: number
   month: number
   summaries: DailySummary[]
+  dailyLimitG?: number
 }
 
-export function CalendarView({ year, month, summaries }: Props) {
+export function CalendarView({ year, month, summaries, dailyLimitG }: Props) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [dayRecords,   setDayRecords]   = useState<DrinkRecord[]>([])
   const [loading,      setLoading]      = useState(false)
@@ -104,6 +105,7 @@ export function CalendarView({ year, month, summaries }: Props) {
         summaries={summaries}
         onDayClick={handleDayClick}
         selectedDates={multiSelect ? selectedDates : []}
+        dailyLimitG={dailyLimitG}
       />
 
       {multiSelect ? (

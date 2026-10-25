@@ -36,4 +36,9 @@ describe('getDayStatus', () => {
   it('40g以下の飲酒日はdrinking', () => {
     expect(getDayStatus({ totalAlcoholG: 20, isRestDay: false })).toBe('drinking')
   })
+
+  it('目標の上限を渡すとその値で判定する', () => {
+    expect(getDayStatus({ totalAlcoholG: 30, isRestDay: false }, 28)).toBe('over')
+    expect(getDayStatus({ totalAlcoholG: 28, isRestDay: false }, 28)).toBe('drinking')
+  })
 })
