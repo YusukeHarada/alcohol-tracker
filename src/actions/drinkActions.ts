@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { calcPureAlcohol, calcDailyTotal } from '@/domain/alcohol'
 import { expandByCount } from '@/domain/drinkEntry'
+import { normalizeTargetDates } from '@/domain/multiDate'
 import type { CountedDrinkEntry } from '@/domain/drinkEntry'
 import { SupabaseDrinkRepository, SupabaseDailySummaryRepository } from '@/repository/supabaseDrinkRepository'
 
@@ -18,12 +19,22 @@ const summaryRepo = new SupabaseDailySummaryRepository()
  * 数字すべての元なので、ここがズレると表示全体がズレる。
  */
 export async function addDrinkRecords(date: string, entries: CountedDrinkEntry[]) {
-  const expanded = expandByCount(entries)
+  await addDrinkRecordsToDates([date], entries)
+}
+
+/**
+ * 同じ内容を複数日にまとめて記録する（カレンダーの複数日選択）。
+ * 全日分を1回のinsertで入れ、日次合計は日ごとに1回だけ再計算する。
+ * 日付が違えば daily_summaries の行も違うので、日ごとの upsert は並列でも競合しない。
+ */
+export async function addDrinkRecordsToDates(dates: string[], entries: CountedDrinkEntry[]) {
+  const targetDates = normalizeTargetDates(dates)
+  const expanded    = expandByCount(entries)
   if (expanded.length === 0) return
 
   const drinkRepo = new SupabaseDrinkRepository()
 
-  await drinkRepo.addMany(expanded.map(entry => ({
+  await drinkRepo.addMany(targetDates.flatMap(date => expanded.map(entry => ({
     userId:         '',
     date,
     category:       entry.category,
@@ -31,11 +42,12 @@ export async function addDrinkRecords(date: string, entries: CountedDrinkEntry[]
     alcoholPercent: entry.alcoholPercent,
     pureAlcoholG:   entry.pureAlcoholG,
     memo:           entry.memo || null,
-  })))
+  }))))
 
-  const records = await drinkRepo.listByDate(date)
-  const total   = calcDailyTotal(records)
-  await summaryRepo.upsert(date, total)
+  await Promise.all(targetDates.map(async date => {
+    const records = await drinkRepo.listByDate(date)
+    await summaryRepo.upsert(date, calcDailyTotal(records))
+  }))
 
   revalidatePath('/')
   revalidatePath('/calendar')

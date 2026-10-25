@@ -4,7 +4,14 @@ import { useState } from 'react'
 import { Calendar } from '@/components/Calendar/Calendar'
 import { CalendarNav } from '@/components/CalendarNav/CalendarNav'
 import { CalendarDayModal } from '@/components/CalendarDayModal/CalendarDayModal'
-import { addDrinkRecord, updateDrinkRecord, deleteDrinkRecord } from '@/actions/drinkActions'
+import { CalendarBulkAddModal } from '@/components/CalendarBulkAddModal/CalendarBulkAddModal'
+import {
+  addDrinkRecord,
+  addDrinkRecordsToDates,
+  updateDrinkRecord,
+  deleteDrinkRecord,
+} from '@/actions/drinkActions'
+import { toggleDate, MAX_BULK_DATES } from '@/domain/multiDate'
 import type { CountedDrinkEntry } from '@/domain/drinkEntry'
 import type { DrinkRecordPatch } from '@/components/DrinkRecordItem/DrinkRecordItem'
 import { createClientSideClient } from '@/lib/supabase/client'
@@ -20,6 +27,9 @@ export function CalendarView({ year, month, summaries }: Props) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [dayRecords,   setDayRecords]   = useState<DrinkRecord[]>([])
   const [loading,      setLoading]      = useState(false)
+  const [multiSelect,   setMultiSelect]   = useState(false)
+  const [selectedDates, setSelectedDates] = useState<string[]>([])
+  const [showBulkAdd,   setShowBulkAdd]   = useState(false)
 
   const fetchDayRecords = async (date: string) => {
     setLoading(true)
@@ -48,8 +58,23 @@ export function CalendarView({ year, month, summaries }: Props) {
   }
 
   const handleDayClick = async (date: string) => {
+    if (multiSelect) {
+      setSelectedDates(prev => toggleDate(prev, date))
+      return
+    }
     setSelectedDate(date)
     await fetchDayRecords(date)
+  }
+
+  const exitMultiSelect = () => {
+    setMultiSelect(false)
+    setSelectedDates([])
+    setShowBulkAdd(false)
+  }
+
+  const handleBulkAdd = async (values: CountedDrinkEntry) => {
+    await addDrinkRecordsToDates(selectedDates, [values])
+    exitMultiSelect()
   }
 
   const handleAdd = async (values: CountedDrinkEntry) => {
@@ -78,7 +103,51 @@ export function CalendarView({ year, month, summaries }: Props) {
         month={month}
         summaries={summaries}
         onDayClick={handleDayClick}
+        selectedDates={multiSelect ? selectedDates : []}
       />
+
+      {multiSelect ? (
+        <div className="space-y-2">
+          <p className="text-xs text-gray-500 text-center">
+            日付をタップして選択（{selectedDates.length}日選択中）
+          </p>
+          {selectedDates.length > MAX_BULK_DATES && (
+            <p className="text-xs text-red-500 text-center">
+              一度に追加できるのは{MAX_BULK_DATES}日までです
+            </p>
+          )}
+          <div className="flex gap-2">
+            <button
+              onClick={exitMultiSelect}
+              className="flex-1 py-3 border border-gray-200 text-gray-500 rounded-xl text-sm"
+            >
+              キャンセル
+            </button>
+            <button
+              onClick={() => setShowBulkAdd(true)}
+              disabled={selectedDates.length === 0 || selectedDates.length > MAX_BULK_DATES}
+              className="flex-1 py-3 rounded-xl bg-indigo-500 text-white text-sm font-semibold disabled:opacity-50"
+            >
+              {selectedDates.length}日にまとめて追加
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setMultiSelect(true)}
+          className="w-full py-3 border border-indigo-300 text-indigo-500 rounded-xl text-sm"
+        >
+          複数日を選択してまとめて追加
+        </button>
+      )}
+
+      {showBulkAdd && (
+        <CalendarBulkAddModal
+          dates={selectedDates}
+          onClose={() => setShowBulkAdd(false)}
+          onSubmit={handleBulkAdd}
+        />
+      )}
 
       {selectedDate && !loading && (
         <CalendarDayModal
