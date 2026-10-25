@@ -10,6 +10,8 @@ type Props = {
   month: number
   summaries: DailySummary[]
   onDayClick: (date: string) => void
+  /** 複数日選択モードで選ばれている日 */
+  selectedDates?: string[]
 }
 
 const STATUS_CLASS: Record<DayStatus, string> = {
@@ -19,7 +21,7 @@ const STATUS_CLASS: Record<DayStatus, string> = {
   over:     'bg-red-100 text-red-700 font-medium',
 }
 
-export function Calendar({ year, month, summaries, onDayClick }: Props) {
+export function Calendar({ year, month, summaries, onDayClick, selectedDates = [] }: Props) {
   const days       = buildCalendarDays(year, month)
   const summaryMap = Object.fromEntries(summaries.map(s => [s.date, s]))
   const firstDow   = new Date(year, month - 1, 1).getDay()
@@ -43,15 +45,21 @@ export function Calendar({ year, month, summaries, onDayClick }: Props) {
             : null
           const status  = getDayStatus(summary)
           const day     = parseInt(date.split('-')[2])
-          const isToday = date === today
+          const isToday    = date === today
+          const isSelected = selectedDates.includes(date)
+          const ringClass  =
+            isSelected ? 'ring-2 ring-indigo-500 ring-offset-1'
+            : isToday  ? 'ring-2 ring-gray-500'
+            : ''
 
           return (
             <div
               key={date}
               data-testid={`day-${date}`}
               data-status={status}
+              data-selected={isSelected || undefined}
               onClick={() => onDayClick(date)}
-              className={`rounded-lg p-1 text-center cursor-pointer text-sm ${STATUS_CLASS[status]} ${isToday ? 'ring-2 ring-gray-500' : ''}`}
+              className={`rounded-lg p-1 text-center cursor-pointer text-sm ${STATUS_CLASS[status]} ${ringClass}`}
             >
               <span className={`block ${isToday ? 'font-bold' : ''}`}>{day}</span>
               {summary && summary.totalAlcoholG > 0 && (
