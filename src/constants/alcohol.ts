@@ -1,5 +1,8 @@
+// 目標を設定していないときの上限。設定画面の目標があればそちらが優先される
+// 1日40g：厚生労働省の飲酒ガイドラインで男性の生活習慣病リスクが高まる量
+// 週200g：40g×7日（280g）だと毎日上限まで飲めてしまうため、休肝日を挟む前提で絞った値
 export const DAILY_LIMIT_G = 40
-export const WEEKLY_LIMIT_G = 280
+export const WEEKLY_LIMIT_G = 200
 export const CONSECUTIVE_ALERT_DAYS = 3
 
 // ワンタップ記録チップの生成パラメータ

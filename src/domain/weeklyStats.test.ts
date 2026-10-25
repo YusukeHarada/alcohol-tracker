@@ -69,11 +69,11 @@ describe('getConsecutiveDrinkingDays', () => {
 })
 
 describe('isOverWeeklyLimit', () => {
-  it('280g以下はfalse', () => {
-    expect(isOverWeeklyLimit(280)).toBe(false)
+  it('200g以下はfalse', () => {
+    expect(isOverWeeklyLimit(200)).toBe(false)
   })
 
-  it('280gを超えるとtrue', () => {
-    expect(isOverWeeklyLimit(280.1)).toBe(true)
+  it('200gを超えるとtrue', () => {
+    expect(isOverWeeklyLimit(200.1)).toBe(true)
   })
 })

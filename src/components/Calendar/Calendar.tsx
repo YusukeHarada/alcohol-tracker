@@ -12,6 +12,8 @@ type Props = {
   onDayClick: (date: string) => void
   /** 複数日選択モードで選ばれている日 */
   selectedDates?: string[]
+  /** 赤（上限超え）にする1日の量。目標の上限を渡す */
+  dailyLimitG?: number
 }
 
 const STATUS_CLASS: Record<DayStatus, string> = {
@@ -21,7 +23,7 @@ const STATUS_CLASS: Record<DayStatus, string> = {
   over:     'bg-red-100 text-red-700 font-medium',
 }
 
-export function Calendar({ year, month, summaries, onDayClick, selectedDates = [] }: Props) {
+export function Calendar({ year, month, summaries, onDayClick, selectedDates = [], dailyLimitG }: Props) {
   const days       = buildCalendarDays(year, month)
   const summaryMap = Object.fromEntries(summaries.map(s => [s.date, s]))
   const firstDow   = new Date(year, month - 1, 1).getDay()
@@ -43,7 +45,7 @@ export function Calendar({ year, month, summaries, onDayClick, selectedDates = [
           const summary = s
             ? { totalAlcoholG: s.totalAlcoholG, isRestDay: s.isRestDay }
             : null
-          const status  = getDayStatus(summary)
+          const status  = getDayStatus(summary, dailyLimitG)
           const day     = parseInt(date.split('-')[2])
           const isToday    = date === today
           const isSelected = selectedDates.includes(date)
