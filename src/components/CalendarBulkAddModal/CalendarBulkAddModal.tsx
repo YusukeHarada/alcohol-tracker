@@ -2,26 +2,44 @@
 
 import { useState } from 'react'
 import { formatShortDate } from '@/domain/jstDate'
+import { DRINK_CATEGORIES } from '@/constants/alcohol'
 import { DrinkForm } from '@/components/DrinkForm/DrinkForm'
 import type { CountedDrinkEntry } from '@/domain/drinkEntry'
 
 type Props = {
   dates: string[]
   onClose: () => void
-  onSubmit: (values: CountedDrinkEntry) => Promise<void>
+  onSubmit: (entries: CountedDrinkEntry[]) => Promise<void>
 }
 
-/** カレンダーで選んだ複数日に、同じ内容をまとめて記録するモーダル */
+/**
+ * カレンダーで選んだ複数日に、同じ内容をまとめて記録するモーダル。
+ * 飲み物はいったんリストに積み、最後に1回で保存する（全日分を1回のinsertにするため）。
+ */
 export function CalendarBulkAddModal({ dates, onClose, onSubmit }: Props) {
-  const [saving, setSaving] = useState(false)
-  const [error,  setError]  = useState<string | null>(null)
+  const [entries, setEntries] = useState<CountedDrinkEntry[]>([])
+  // 追加のたびにフォームを初期状態に戻すためのkey
+  const [formKey, setFormKey] = useState(0)
+  const [saving,  setSaving]  = useState(false)
+  const [error,   setError]   = useState<string | null>(null)
 
-  const handleSubmit = async (values: CountedDrinkEntry) => {
-    if (saving) return
+  const perDayTotal = entries.reduce((s, e) => s + e.pureAlcoholG * (e.count ?? 1), 0)
+
+  const handleAddEntry = (values: CountedDrinkEntry) => {
+    setEntries(prev => [...prev, values])
+    setFormKey(k => k + 1)
+  }
+
+  const handleRemoveEntry = (index: number) => {
+    setEntries(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleSave = async () => {
+    if (saving || entries.length === 0) return
     setSaving(true)
     setError(null)
     try {
-      await onSubmit(values)
+      await onSubmit(entries)
     } catch {
       setError('保存に失敗しました。もう一度お試しください')
       setSaving(false)
@@ -49,7 +67,57 @@ export function CalendarBulkAddModal({ dates, onClose, onSubmit }: Props) {
           </div>
         </div>
 
-        <DrinkForm onSubmit={handleSubmit} />
+        {entries.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm text-gray-500">記録する飲み物</h3>
+            <ul className="space-y-2">
+              {entries.map((e, i) => {
+                const label = DRINK_CATEGORIES.find(c => c.value === e.category)?.label ?? e.category
+                const count = e.count ?? 1
+                return (
+                  <li
+                    key={i}
+                    data-testid="bulk-entry"
+                    className="flex items-center justify-between border rounded-xl px-3 py-2"
+                  >
+                    <div className="text-sm">
+                      <span className="font-medium">{label}</span>
+                      <span className="text-gray-500"> {e.volumeMl}ml {e.alcoholPercent}%</span>
+                      {count > 1 && <span className="text-gray-500"> ×{count}本</span>}
+                      {e.memo && <span className="block text-xs text-gray-400">{e.memo}</span>}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-indigo-600">{(e.pureAlcoholG * count).toFixed(1)}g</span>
+                      <button
+                        onClick={() => handleRemoveEntry(i)}
+                        disabled={saving}
+                        aria-label={`${label}を削除`}
+                        className="text-xs text-gray-400"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+
+        <div className="border-t pt-4 space-y-3">
+          <h3 className="text-sm text-gray-500">飲み物を追加</h3>
+          <DrinkForm key={formKey} onSubmit={handleAddEntry} submitVerb="追加する" />
+        </div>
+
+        <button
+          onClick={handleSave}
+          disabled={saving || entries.length === 0}
+          className="w-full py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold disabled:opacity-50"
+        >
+          {entries.length === 0
+            ? '飲み物を追加してください'
+            : `${dates.length}日に${entries.length}件を記録する（1日あたり${perDayTotal.toFixed(1)}g）`}
+        </button>
 
         {saving && <p className="text-center text-sm text-gray-400">保存中...</p>}
         {error  && <p className="text-center text-sm text-red-500">{error}</p>}

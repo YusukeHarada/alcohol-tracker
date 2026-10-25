@@ -16,12 +16,14 @@ type SubmitValues = {
 
 type Props = {
   onSubmit: (values: SubmitValues) => void
+  /** 送信ボタンの動詞。保存せずリストに足すだけの画面では「追加する」にする */
+  submitVerb?: string
 }
 
 const inputClass = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-shadow'
 const labelClass = 'text-xs font-medium text-slate-500'
 
-export function DrinkForm({ onSubmit }: Props) {
+export function DrinkForm({ onSubmit, submitVerb = '記録する' }: Props) {
   const initial = DRINK_CATEGORIES[0]
   const [category,       setCategory]       = useState<string>(initial.value)
   const [volumeMl,       setVolumeMl]       = useState(String(initial.defaultMl))
@@ -150,7 +152,7 @@ export function DrinkForm({ onSubmit }: Props) {
         disabled={!countValid}
         className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-sm font-semibold shadow-sm active:scale-[0.98] transition-transform disabled:opacity-50 disabled:active:scale-100"
       >
-        {countValid && countNum > 1 ? `${countNum}本を記録する` : '記録する'}
+        {countValid && countNum > 1 ? `${countNum}本を${submitVerb}` : submitVerb}
       </button>
     </div>
   )
