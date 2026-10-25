@@ -42,13 +42,33 @@ describe('CalendarView 複数日選択', () => {
     expect(screen.getByText('10/3')).toBeInTheDocument()
     expect(screen.getByText('10/5')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: '記録する' }))
+    // 飲み物を積むまでは保存できない
+    expect(screen.getByRole('button', { name: '飲み物を追加してください' })).toBeDisabled()
+
+    // 1杯目：初期値（宝ハイボール 500ml 7%）を1本
+    await user.click(screen.getByRole('button', { name: '追加する' }))
+    // 2杯目：ビールを2本
+    await user.selectOptions(screen.getByLabelText('種類'), 'beer')
+    await user.clear(screen.getByLabelText('本数'))
+    await user.type(screen.getByLabelText('本数'), '2')
+    await user.click(screen.getByRole('button', { name: '2本を追加する' }))
+    // 3杯目：日本酒を追加してから削除
+    await user.selectOptions(screen.getByLabelText('種類'), 'sake')
+    await user.click(screen.getByRole('button', { name: '追加する' }))
+    await user.click(screen.getByRole('button', { name: '日本酒を削除' }))
+
+    expect(screen.getAllByTestId('bulk-entry')).toHaveLength(2)
+    // 追加後はフォームが初期値に戻る
+    expect(screen.getByLabelText('種類')).toHaveValue('t-hi')
+
+    await user.click(screen.getByRole('button', { name: /2日に2件を記録する（1日あたり68\.0g）/ }))
 
     await waitFor(() => expect(bulkAddMock).toHaveBeenCalledTimes(1))
     const [dates, entries] = bulkAddMock.mock.calls[0]
     expect(dates).toEqual(['2026-10-03', '2026-10-05'])
-    expect(entries).toHaveLength(1)
-    expect(entries[0]).toMatchObject({ count: 1 })
+    expect(entries).toHaveLength(2)
+    expect(entries[0]).toMatchObject({ category: 't-hi', count: 1 })
+    expect(entries[1]).toMatchObject({ category: 'beer', count: 2 })
 
     // 記録後は選択モードを抜ける
     await waitFor(() =>

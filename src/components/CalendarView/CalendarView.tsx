@@ -72,8 +72,8 @@ export function CalendarView({ year, month, summaries }: Props) {
     setShowBulkAdd(false)
   }
 
-  const handleBulkAdd = async (values: CountedDrinkEntry) => {
-    await addDrinkRecordsToDates(selectedDates, [values])
+  const handleBulkAdd = async (entries: CountedDrinkEntry[]) => {
+    await addDrinkRecordsToDates(selectedDates, entries)
     exitMultiSelect()
   }
 
